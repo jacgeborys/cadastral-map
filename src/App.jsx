@@ -73,23 +73,96 @@ function App() {
     setSelectedPlots(prev => [...prev, plotInfo]);
   };
 
-  const exportToCSV = () => {
-    const BOM = '\uFEFF';
+  // Email mapping for each borough
+  const boroughEmails = {
+    'Dzielnica Bemowo': 'bemowo.wab@um.warszawa.pl',
+    'Dzielnica Białołęka': 'bialoleka.architektura@um.warszawa.pl',
+    'Dzielnica Bielany': 'bielany.wab@um.warszawa.pl',
+    'Dzielnica Mokotów': 'mokotow.wab@um.warszawa.pl',
+    'Dzielnica Ochota': 'ochota.wab@um.warszawa.pl',
+    'Dzielnica Praga-Południe': 'pragapoludnie.wab@um.warszawa.pl',
+    'Dzielnica Praga-Północ': 'pragapolnoc.urzad@um.warszawa.pl',
+    'Dzielnica Rembertów': 'rembertow.wab@um.warszawa.pl',
+    'Dzielnica Śródmieście': 'srodmiescie.wab@um.warszawa.pl',
+    'Dzielnica Targówek': 'targowek.wab@um.warszawa.pl',
+    'Dzielnica Ursus': 'ursus.wab@um.warszawa.pl',
+    'Dzielnica Ursynów': 'ursynow.wab@um.warszawa.pl',
+    'Dzielnica Wawer': 'wawer.wab@um.warszawa.pl',
+    'Dzielnica Wesoła': 'wesola.wab@um.warszawa.pl',
+    'Dzielnica Wilanów': 'sekretariat.udwilanow@um.warszawa.pl',
+    'Dzielnica Włochy': 'wlochy.wab@um.warszawa.pl',
+    'Dzielnica Wola': 'wola.wab@um.warszawa.pl',
+    'Dzielnica Żoliborz': 'Zoliborz.WAB@um.warszawa.pl'
+  };
+
+  const generateWAiBLetters = () => {
+    // Group plots by borough and then by plot+precinct
+    const plotsByBorough = selectedPlots.reduce((acc, plot) => {
+      const borough = plot.municipality;
+      const plotKey = `${plot.plotNumber}-${plot.precinct}`;
+      
+      if (!acc[borough]) {
+        acc[borough] = {};
+      }
+      if (!acc[borough][plotKey]) {
+        acc[borough][plotKey] = {
+          count: 0,
+          plotNumber: plot.plotNumber,
+          precinct: plot.precinct
+        };
+      }
+      acc[borough][plotKey].count++;
+      
+      return acc;
+    }, {});
+
+    // Generate letter for each borough
+    Object.entries(plotsByBorough).forEach(([borough, plots]) => {
+      const plotDescriptions = Object.values(plots).map(plot => {
+        const billboardCount = plot.count;
+        const billboardWord = billboardCount === 1 ? 'bilbord' : 'bilbordy';
+        return `${billboardCount} ${billboardWord} na działce nr ${plot.plotNumber} z obrębu ${plot.precinct}`;
+      }).join('\n• ');
+
+      const email = boroughEmails[borough] || 'EMAIL NOT FOUND';
+      const letter = `DO: ${email}
+
+Dzień dobry,
+chciałbym się dowiedzieć czy poniższe wolnostojące bilbordy posiadają wymagane prawem pozwolenie na budowę:
+• ${plotDescriptions}
+
+Pozdrawiam,
+[imię i nazwisko]`;
+
+      // Create download
+      const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `WAiB_${borough.replace('Dzielnica ', '')}_${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  };
+    const exportToCSV = () => {
+      const BOM = '\uFEFF';
     
     const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr_dzialki', 'Powierzchnia_ha', 'Szerokosc', 'Dlugosc'];
     const rows = selectedPlots.map(plot => {
-      const obreb = plot.precinct ? `'${plot.precinct}` : '';
+      // Force text format by adding ="text" format
+      const obreb = plot.precinct ? `="${plot.precinct}"` : '=""';
+      const nrDzialki = plot.plotNumber ? `="${plot.plotNumber}"` : '=""';
       
       return [
-        `"${plot.id}"`,
-        `"${plot.voivodeship}"`,
-        `"${plot.county}"`,
-        `"${plot.municipality}"`,
-        `"${obreb}"`,
-        `"${plot.plotNumber}"`,
-        `"${plot.area}"`,
-        `"${plot.coordinates.lat}"`,
-        `"${plot.coordinates.lng}"`
+        `="${plot.id}"`,
+        `="${plot.voivodeship}"`,
+        `="${plot.county}"`,
+        `="${plot.municipality}"`,
+        obreb,
+        nrDzialki,
+        `="${plot.area}"`,
+        `="${plot.coordinates.lat}"`,
+        `="${plot.coordinates.lng}"`
       ];
     });
     
@@ -103,7 +176,7 @@ function App() {
     const a = document.createElement('a');
     a.href = url;
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.download = `selected_plots_${timestamp}.csv`;
+    a.download = `wybrane_dzialki_${timestamp}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -138,21 +211,36 @@ function App() {
       </div>
       
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <h2 style={{ color: '#000' }}>Wybrane działki ({selectedPlots.length})</h2>
-          <button 
-            onClick={exportToCSV}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Eksportuj do CSV
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={generateWAiBLetters}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#2196F3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Generuj pisma WAiB
+            </button>
+            <button 
+              onClick={exportToCSV}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Eksportuj do CSV
+            </button>
+          </div>
         </div>
         
         {selectedPlots.map((plot, index) => (

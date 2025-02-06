@@ -9,7 +9,7 @@ function MapClickHandler({ onPlotSelect }) {
     click: async (e) => {
       const { lat, lng } = e.latlng;
       
-      if (!window.confirm('Do you want to add this plot?')) {
+      if (!window.confirm('Dodać punkt?')) {
         return;
       }
       
@@ -76,7 +76,7 @@ function App() {
   const exportToCSV = () => {
     const BOM = '\uFEFF';
     
-    const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr dzialki', 'Powierzchnia', 'Szerokosc', 'Dlugosc'];
+    const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr_dzialki', 'Powierzchnia_ha', 'Szerokosc', 'Dlugosc'];
     const rows = selectedPlots.map(plot => {
       const obreb = plot.precinct ? `'${plot.precinct}` : '';
       
@@ -139,7 +139,7 @@ function App() {
       
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ color: '#000' }}>Selected Plots ({selectedPlots.length})</h2>
+          <h2 style={{ color: '#000' }}>Wybrane działki ({selectedPlots.length})</h2>
           <button 
             onClick={exportToCSV}
             style={{
@@ -151,7 +151,7 @@ function App() {
               cursor: 'pointer'
             }}
           >
-            Export to CSV
+            Eksportuj do CSV
           </button>
         </div>
         
@@ -185,9 +185,9 @@ function App() {
                 cursor: 'pointer'
               }}
             >
-              Remove
+              Usuń
             </button>
-            <h3 style={{ margin: '0 0 10px 0', color: '#000' }}>Plot {plot.plotNumber}</h3>
+            <h3 style={{ margin: '0 0 10px 0', color: '#000' }}>Działka {plot.plotNumber}</h3>
             <p style={{ color: '#000' }}><strong>ID:</strong> {plot.id}</p>
             <p style={{ color: '#000' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
             <p style={{ color: '#000' }}><strong>Powiat:</strong> {plot.county}</p>

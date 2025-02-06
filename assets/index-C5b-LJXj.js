@@ -44,7 +44,8 @@ Error generating stack: `+u.message+`
 
 Dzień dobry,
 chciałbym się dowiedzieć czy poniższe wolnostojące bilbordy posiadają wymagane prawem pozwolenie na budowę:
-• ${Object.values(ce).map(ie=>{const me=ie.count;return`${me} ${me===1?"bilbord":"bilbordy"} na działce nr ${ie.plotNumber} z obrębu ${ie.precinct}`}).join("\\n• ")}
+• ${Object.values(ce).map(ie=>{const me=ie.count;return`${me} ${me===1?"bilbord":"bilbordy"} na działce nr ${ie.plotNumber} z obrębu ${ie.precinct}`}).join(`
+• `)}
 
 Pozdrawiam,
 [imię i nazwisko]`,xe=new Blob([we],{type:"text/plain;charset=utf-8"}),q=window.URL.createObjectURL(xe),ae=document.createElement("a");ae.href=q,ae.download=`WAiB_${F.replace("Dzielnica ","")}_${new Date().toISOString().slice(0,10)}.txt`,ae.click(),window.URL.revokeObjectURL(q)})},R=()=>{const D="\uFEFF",F=["ID","Wojewodztwo","Powiat","Gmina","Obreb","Nr_dzialki","Powierzchnia_ha","Szerokosc","Dlugosc"],ce=k.map(ie=>{const me=ie.precinct?`="${ie.precinct}"`:'=""',X=ie.plotNumber?`="${ie.plotNumber}"`:'=""';return[`="${ie.id}"`,`="${ie.voivodeship}"`,`="${ie.county}"`,`="${ie.municipality}"`,me,X,`="${ie.area}"`,`="${ie.coordinates.lat}"`,`="${ie.coordinates.lng}"`]}),Z=D+[F.map(ie=>`"${ie}"`).join(","),...ce.map(ie=>ie.join(","))].join(`

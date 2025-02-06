@@ -48,7 +48,6 @@ function MapClickHandler({ onPlotSelect }) {
           municipality: getAttributeValue(xmlDoc, "Gmina"),
           precinct: getAttributeValue(xmlDoc, "Obręb"),
           plotNumber: getAttributeValue(xmlDoc, "Numer działki"),
-          area: getAttributeValue(xmlDoc, "Pole pow. w ewidencji gruntów (ha)"),
           coordinates: { lat, lng }
         };
         
@@ -73,7 +72,6 @@ function App() {
     setSelectedPlots(prev => [...prev, plotInfo]);
   };
 
-  // Email mapping for each borough
   const boroughEmails = {
     'Dzielnica Bemowo': 'bemowo.wab@um.warszawa.pl',
     'Dzielnica Białołęka': 'bialoleka.architektura@um.warszawa.pl',
@@ -95,8 +93,42 @@ function App() {
     'Dzielnica Żoliborz': 'Zoliborz.WAB@um.warszawa.pl'
   };
 
+  const exportToCSV = () => {
+    const BOM = '\uFEFF';
+    
+    const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr_dzialki', 'Szerokosc', 'Dlugosc'];
+    const rows = selectedPlots.map(plot => {
+      const obreb = plot.precinct ? `="${plot.precinct}"` : '=""';
+      const nrDzialki = plot.plotNumber ? `="${plot.plotNumber}"` : '=""';
+      
+      return [
+        `="${plot.id}"`,
+        `="${plot.voivodeship}"`,
+        `="${plot.county}"`,
+        `="${plot.municipality}"`,
+        obreb,
+        nrDzialki,
+        `="${plot.coordinates.lat}"`,
+        `="${plot.coordinates.lng}"`
+      ];
+    });
+    
+    const csvContent = BOM + [
+      headers.map(header => `"${header}"`).join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    a.download = `wybrane_dzialki_${timestamp}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const generateWAiBLetters = () => {
-    // Group plots by borough and then by plot+precinct
     const plotsByBorough = selectedPlots.reduce((acc, plot) => {
       const borough = plot.municipality;
       const plotKey = `${plot.plotNumber}-${plot.precinct}`;
@@ -116,7 +148,6 @@ function App() {
       return acc;
     }, {});
 
-    // Generate letter for each borough
     Object.entries(plotsByBorough).forEach(([borough, plots]) => {
       const plotDescriptions = Object.values(plots).map(plot => {
         const billboardCount = plot.count;
@@ -124,7 +155,7 @@ function App() {
         return `${billboardCount} ${billboardWord} na działce nr ${plot.plotNumber} z obrębu ${plot.precinct}`;
       }).join('\n• ');
 
-      const email = boroughEmails[borough] || 'EMAIL NOT FOUND';
+      const email = boroughEmails[borough] || 'Nie znaleziono adresu e-mail';
       const letter = `DO: ${email}
 
 Dzień dobry,
@@ -134,7 +165,6 @@ chciałbym się dowiedzieć czy poniższe wolnostojące bilbordy posiadają wyma
 Pozdrawiam,
 [imię i nazwisko]`;
 
-      // Create download
       const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -144,41 +174,54 @@ Pozdrawiam,
       window.URL.revokeObjectURL(url);
     });
   };
-    const exportToCSV = () => {
-      const BOM = '\uFEFF';
-    
-    const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr_dzialki', 'Powierzchnia_ha', 'Szerokosc', 'Dlugosc'];
-    const rows = selectedPlots.map(plot => {
-      // Force text format by adding ="text" format
-      const obreb = plot.precinct ? `="${plot.precinct}"` : '=""';
-      const nrDzialki = plot.plotNumber ? `="${plot.plotNumber}"` : '=""';
+
+  const generatePINBLetters = () => {
+    const plotsByBorough = selectedPlots.reduce((acc, plot) => {
+      const borough = plot.municipality;
+      const plotKey = `${plot.plotNumber}-${plot.precinct}`;
       
-      return [
-        `="${plot.id}"`,
-        `="${plot.voivodeship}"`,
-        `="${plot.county}"`,
-        `="${plot.municipality}"`,
-        obreb,
-        nrDzialki,
-        `="${plot.area}"`,
-        `="${plot.coordinates.lat}"`,
-        `="${plot.coordinates.lng}"`
-      ];
+      if (!acc[borough]) {
+        acc[borough] = {};
+      }
+      if (!acc[borough][plotKey]) {
+        acc[borough][plotKey] = {
+          count: 0,
+          plotNumber: plot.plotNumber,
+          precinct: plot.precinct
+        };
+      }
+      acc[borough][plotKey].count++;
+      
+      return acc;
+    }, {});
+
+    Object.entries(plotsByBorough).forEach(([borough, plots]) => {
+      const plotDescriptions = Object.values(plots).map(plot => {
+        const billboardCount = plot.count;
+        const billboardWord = billboardCount === 1 ? 'bilbord' : 'bilbordy';
+        return `${billboardCount} ${billboardWord} na działce nr ${plot.plotNumber} z obrębu ${plot.precinct}`;
+      }).join('\n• ');
+
+      const cleanBorough = borough.replace('Dzielnica ', '');
+      const letter = `DO: sekretariat@pinb.pl
+
+Szanowni Państwo,
+w związku z ujawnieniem wolnostojących bilbordów bez wymaganego prawem pozwolenia na budowę zwracam się z prośbą o wszczęcie postępowania z urzędu i doprowadzenie do rozbiórki samowoli budowlanych ujawnionych przez Wydział Architektury i Budownictwa Urzędu Dzielnicy ${cleanBorough}. W załączeniu pismo z Urzędu.
+
+Dotyczy:
+• ${plotDescriptions}
+
+Z poważaniem,
+[imię i nazwisko]`;
+
+      const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PINB_${cleanBorough}_${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      window.URL.revokeObjectURL(url);
     });
-    
-    const csvContent = BOM + [
-      headers.map(header => `"${header}"`).join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.download = `wybrane_dzialki_${timestamp}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -213,7 +256,7 @@ Pozdrawiam,
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <h2 style={{ color: '#000' }}>Wybrane działki ({selectedPlots.length})</h2>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button 
               onClick={generateWAiBLetters}
               style={{
@@ -226,6 +269,19 @@ Pozdrawiam,
               }}
             >
               Generuj pisma WAiB
+            </button>
+            <button 
+              onClick={generatePINBLetters}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#9C27B0',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Generuj pisma PINB
             </button>
             <button 
               onClick={exportToCSV}
@@ -276,12 +332,10 @@ Pozdrawiam,
               Usuń
             </button>
             <h3 style={{ margin: '0 0 10px 0', color: '#000' }}>Działka {plot.plotNumber}</h3>
-            <p style={{ color: '#000' }}><strong>ID:</strong> {plot.id}</p>
             <p style={{ color: '#000' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
             <p style={{ color: '#000' }}><strong>Powiat:</strong> {plot.county}</p>
             <p style={{ color: '#000' }}><strong>Gmina:</strong> {plot.municipality}</p>
             <p style={{ color: '#000' }}><strong>Obręb:</strong> {plot.precinct}</p>
-            <p style={{ color: '#000' }}><strong>Powierzchnia:</strong> {plot.area} ha</p>
           </div>
         ))}
       </div>

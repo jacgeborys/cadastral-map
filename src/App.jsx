@@ -9,6 +9,10 @@ function MapClickHandler({ onPlotSelect }) {
     click: async (e) => {
       const { lat, lng } = e.latlng;
       
+      if (!window.confirm('Do you want to add this plot?')) {
+        return;
+      }
+      
       const bounds = map.getBounds();
       const size = map.getSize();
       const x = Math.round((lng - bounds.getWest()) / (bounds.getEast() - bounds.getWest()) * size.x);
@@ -134,8 +138,8 @@ function App() {
       </div>
       
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
-        <div style={{ marginBottom: '20px' }}>
-          <h2>Selected Plots ({selectedPlots.length})</h2>
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ color: '#000' }}>Selected Plots ({selectedPlots.length})</h2>
           <button 
             onClick={exportToCSV}
             style={{
@@ -159,16 +163,37 @@ function App() {
               padding: '15px',
               marginBottom: '10px',
               borderRadius: '4px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              position: 'relative'
             }}
           >
-            <h3 style={{ margin: '0 0 10px 0' }}>Plot {plot.plotNumber}</h3>
-            <p><strong>ID:</strong> {plot.id}</p>
-            <p><strong>Województwo:</strong> {plot.voivodeship}</p>
-            <p><strong>Powiat:</strong> {plot.county}</p>
-            <p><strong>Gmina:</strong> {plot.municipality}</p>
-            <p><strong>Obręb:</strong> {plot.precinct}</p>
-            <p><strong>Powierzchnia:</strong> {plot.area} ha</p>
+            <button
+              onClick={() => {
+                const newPlots = [...selectedPlots];
+                newPlots.splice(index, 1);
+                setSelectedPlots(newPlots);
+              }}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '10px',
+                backgroundColor: '#ff4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                cursor: 'pointer'
+              }}
+            >
+              Remove
+            </button>
+            <h3 style={{ margin: '0 0 10px 0', color: '#000' }}>Plot {plot.plotNumber}</h3>
+            <p style={{ color: '#000' }}><strong>ID:</strong> {plot.id}</p>
+            <p style={{ color: '#000' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
+            <p style={{ color: '#000' }}><strong>Powiat:</strong> {plot.county}</p>
+            <p style={{ color: '#000' }}><strong>Gmina:</strong> {plot.municipality}</p>
+            <p style={{ color: '#000' }}><strong>Obręb:</strong> {plot.precinct}</p>
+            <p style={{ color: '#000' }}><strong>Powierzchnia:</strong> {plot.area} ha</p>
           </div>
         ))}
       </div>

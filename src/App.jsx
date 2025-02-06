@@ -151,7 +151,7 @@ function App() {
     Object.entries(plotsByBorough).forEach(([borough, plots]) => {
       const plotDescriptions = Object.values(plots).map(plot => {
         const billboardCount = plot.count;
-        const billboardWord = billboardCount === 1 ? 'bilbord' : 'bilbordy';
+        const billboardWord = billboardCount === 1 ? 'billboard' : 'billboardy';
         return `${billboardCount} ${billboardWord} na działce nr ${plot.plotNumber} z obrębu ${plot.precinct}`;
       }).join('\n• ');
 
@@ -159,7 +159,7 @@ function App() {
       const letter = `DO: ${email}
 
 Dzień dobry,
-chciałbym się dowiedzieć czy poniższe wolnostojące bilbordy posiadają wymagane prawem pozwolenie na budowę:
+chciałbym się dowiedzieć czy poniższe wolnostojące billboardy posiadają wymagane prawem pozwolenie na budowę:
 • ${plotDescriptions}
 
 Pozdrawiam,
@@ -206,7 +206,7 @@ Pozdrawiam,
       const letter = `DO: sekretariat@pinb.pl
 
 Szanowni Państwo,
-w związku z ujawnieniem wolnostojących bilbordów bez wymaganego prawem pozwolenia na budowę zwracam się z prośbą o wszczęcie postępowania z urzędu i doprowadzenie do rozbiórki samowoli budowlanych ujawnionych przez Wydział Architektury i Budownictwa Urzędu Dzielnicy ${cleanBorough}. W załączeniu pismo z Urzędu.
+w związku z ujawnieniem wolnostojących billboardów bez wymaganego prawem pozwolenia na budowę zwracam się z prośbą o wszczęcie postępowania z urzędu i doprowadzenie do rozbiórki samowoli budowlanych ujawnionych przez Wydział Architektury i Budownictwa Urzędu Dzielnicy ${cleanBorough}. W załączeniu pismo z Urzędu.
 
 Dotyczy:
 • ${plotDescriptions}
@@ -254,90 +254,188 @@ Z poważaniem,
       </div>
       
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <h2 style={{ color: '#000' }}>Wybrane działki ({selectedPlots.length})</h2>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={generateWAiBLetters}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#2196F3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Generuj pisma WAiB
-            </button>
-            <button 
-              onClick={generatePINBLetters}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#9C27B0',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Generuj pisma PINB
-            </button>
-            <button 
-              onClick={exportToCSV}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Eksportuj do CSV
-            </button>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: 'white', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ color: '#000', marginTop: 0, marginBottom: '15px' }}>Zgłaszanie nielegalnych billboardów</h3>
+            
+            <div className="instruction-section">
+              <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ 
+                  marginBottom: '24px',
+                  backgroundColor: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong style={{ color: '#1a73e8' }}>1. Zaznacz billboardy na mapie</strong>
+                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                      <strong>Kliknij</strong> w miejscu każdego billboardu na mapie. Możesz zaznaczyć wiele punktów w różnych dzielnicach.
+                    </p>
+                  </div>
+                </li>
+
+                <li style={{ 
+                  marginBottom: '24px',
+                  backgroundColor: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong style={{ color: '#1a73e8' }}>2. Wyślij zapytanie do WAiB</strong>
+                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                      <strong>Wygeneruj</strong> pisma do Wydziału Architektury i Budownictwa z zapytaniem o pozwolenia na budowę.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={generateWAiBLetters}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#1a73e8',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                      width: '100%',
+                      marginTop: '8px'
+                    }}
+                  >
+                    Generuj pisma do WAiB
+                  </button>
+                </li>
+
+                <li style={{ 
+                  marginBottom: '24px',
+                  backgroundColor: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong style={{ color: '#1a73e8' }}>3. Poczekaj na odpowiedź</strong>
+                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                      Odczekaj 2 tygodnie na odpowiedź z WAiB potwierdzającą brak pozwoleń na budowę.
+                    </p>
+                  </div>
+                </li>
+
+                <li style={{ 
+                  marginBottom: '24px',
+                  backgroundColor: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong style={{ color: '#1a73e8' }}>4. Złóż wniosek do PINB</strong>
+                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                      <strong>Wygeneruj</strong> pisma do Powiatowego Inspektoratu Nadzoru Budowlanego. Dołącz do nich odpowiedzi z WAiB.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={generatePINBLetters}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#9C27B0',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                      width: '100%',
+                      marginTop: '8px'
+                    }}
+                  >
+                    Generuj pisma do PINB
+                  </button>
+                </li>
+              </ol>
+
+              <div style={{ 
+                marginTop: '24px',
+                paddingTop: '16px',
+                borderTop: '1px solid #e9ecef',
+                textAlign: 'center'
+              }}>
+                <button 
+                  onClick={exportToCSV}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em',
+                    opacity: '0.8'
+                  }}
+                >
+                  Eksportuj dane do CSV
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '32px' }}>
+            <h2 style={{ color: '#000', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              Wybrane działki
+              <span style={{ 
+                backgroundColor: '#e8f0fe',
+                color: '#1a73e8',
+                padding: '4px 8px',
+                borderRadius: '16px',
+                fontSize: '0.9em'
+              }}>
+                {selectedPlots.length}
+              </span>
+            </h2>
+            
+            {selectedPlots.map((plot, index) => (
+              <div 
+                key={index}
+                style={{
+                  backgroundColor: 'white',
+                  padding: '16px',
+                  marginBottom: '12px',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  position: 'relative'
+                }}
+              >
+                <button
+                  onClick={() => {
+                    const newPlots = [...selectedPlots];
+                    newPlots.splice(index, 1);
+                    setSelectedPlots(newPlots);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '12px',
+                    backgroundColor: '#ff4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em'
+                  }}
+                >
+                  Usuń
+                </button>
+                <h3 style={{ margin: '0 0 12px 0', color: '#000' }}>Działka {plot.plotNumber}</h3>
+                <p style={{ color: '#000', margin: '4px 0' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
+                <p style={{ color: '#000', margin: '4px 0' }}><strong>Powiat:</strong> {plot.county}</p>
+                <p style={{ color: '#000', margin: '4px 0' }}><strong>Gmina:</strong> {plot.municipality}</p>
+                <p style={{ color: '#000', margin: '4px 0' }}><strong>Obręb:</strong> {plot.precinct}</p>
+              </div>
+            ))}
           </div>
         </div>
-        
-        {selectedPlots.map((plot, index) => (
-          <div 
-            key={index}
-            style={{
-              backgroundColor: 'white',
-              padding: '15px',
-              marginBottom: '10px',
-              borderRadius: '4px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              position: 'relative'
-            }}
-          >
-            <button
-              onClick={() => {
-                const newPlots = [...selectedPlots];
-                newPlots.splice(index, 1);
-                setSelectedPlots(newPlots);
-              }}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '10px',
-                backgroundColor: '#ff4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '4px 8px',
-                cursor: 'pointer'
-              }}
-            >
-              Usuń
-            </button>
-            <h3 style={{ margin: '0 0 10px 0', color: '#000' }}>Działka {plot.plotNumber}</h3>
-            <p style={{ color: '#000' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
-            <p style={{ color: '#000' }}><strong>Powiat:</strong> {plot.county}</p>
-            <p style={{ color: '#000' }}><strong>Gmina:</strong> {plot.municipality}</p>
-            <p style={{ color: '#000' }}><strong>Obręb:</strong> {plot.precinct}</p>
-          </div>
-        ))}
       </div>
     </div>
   );

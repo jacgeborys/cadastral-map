@@ -4,21 +4,16 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
-// Click handler component
 function MapClickHandler({ onPlotSelect }) {
   const map = useMapEvents({
     click: async (e) => {
       const { lat, lng } = e.latlng;
       
-      // Get map bounds and size for GetFeatureInfo request
       const bounds = map.getBounds();
       const size = map.getSize();
-      
-      // Calculate clicked point in pixels
       const x = Math.round((lng - bounds.getWest()) / (bounds.getEast() - bounds.getWest()) * size.x);
       const y = Math.round((bounds.getNorth() - lat) / (bounds.getNorth() - bounds.getSouth()) * size.y);
       
-      // Construct GetFeatureInfo URL
       const wmsUrl = 'https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow';
       const params = new URLSearchParams({
         SERVICE: 'WMS',
@@ -39,11 +34,9 @@ function MapClickHandler({ onPlotSelect }) {
         const response = await fetch(`${wmsUrl}?${params}`);
         const text = await response.text();
         
-        // Parse XML response
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(text, "text/xml");
         
-        // Extract plot information
         const plotInfo = {
           id: getAttributeValue(xmlDoc, "Identyfikator działki"),
           voivodeship: getAttributeValue(xmlDoc, "Województwo"),
@@ -64,7 +57,6 @@ function MapClickHandler({ onPlotSelect }) {
   return null;
 }
 
-// Helper function to get attribute values from XML
 function getAttributeValue(xmlDoc, attributeName) {
   const element = xmlDoc.querySelector(`Attribute[Name="${attributeName}"]`);
   return element ? element.textContent : '';
@@ -78,12 +70,10 @@ function App() {
   };
 
   const exportToCSV = () => {
-    // Add BOM for UTF-8
     const BOM = '\uFEFF';
     
     const headers = ['ID', 'Wojewodztwo', 'Powiat', 'Gmina', 'Obreb', 'Nr dzialki', 'Powierzchnia', 'Szerokosc', 'Dlugosc'];
     const rows = selectedPlots.map(plot => {
-      // Add leading apostrophe to Obreb to force text format
       const obreb = plot.precinct ? `'${plot.precinct}` : '';
       
       return [
@@ -91,7 +81,7 @@ function App() {
         `"${plot.voivodeship}"`,
         `"${plot.county}"`,
         `"${plot.municipality}"`,
-        `"${obreb}"`,  // Modified this line
+        `"${obreb}"`,
         `"${plot.plotNumber}"`,
         `"${plot.area}"`,
         `"${plot.coordinates.lat}"`,
@@ -115,12 +105,12 @@ function App() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ flex: '2', position: 'relative' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+      <div style={{ flex: '3', position: 'relative' }}>
         <MapContainer 
           center={[52.237049, 21.017532]}
           zoom={11}
-          style={{ height: '100%' }}
+          style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -132,8 +122,6 @@ function App() {
             format="image/png"
             transparent={true}
             version="1.3.0"
-            crs={L.CRS.EPSG4326}
-            srs="EPSG:4326"
           />
           <MapClickHandler onPlotSelect={handlePlotSelect} />
           {selectedPlots.map((plot, index) => (

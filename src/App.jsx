@@ -255,7 +255,144 @@ Z poważaniem,
       
       <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: 'white', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <div style={{ 
+              marginBottom: '15px', 
+              padding: '15px', 
+              backgroundColor: 'white', 
+              borderRadius: '4px', 
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+            }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '15px',
+              padding: '8px 12px',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}
+            onClick={() => document.getElementById('plotsList').toggleAttribute('hidden')}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: '#000' }}>Wybrane billboardy</span>
+                <span style={{ 
+                  backgroundColor: '#e8f0fe',
+                  color: '#1a73e8',
+                  padding: '2px 8px',
+                  borderRadius: '16px',
+                  fontWeight: 'bold',
+                  minWidth: '24px',
+                  textAlign: 'center'
+                }}>
+                  {selectedPlots.length}
+                </span>
+              </div>
+              <div style={{ 
+                color: '#1a73e8',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '0.9em'
+              }}>
+                <span>Szczegóły</span>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
+            
+            <div id="plotsList" hidden>
+              {selectedPlots.map((plot, index) => (
+                <div 
+                  key={index}
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '12px',
+                    marginBottom: '8px',
+                    borderRadius: '4px',
+                    position: 'relative',
+                    fontSize: '0.9em'
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      const newPlots = [...selectedPlots];
+                      newPlots.splice(index, 1);
+                      setSelectedPlots(newPlots);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '8px',
+                      backgroundColor: '#ff4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '4px 8px',
+                      cursor: 'pointer',
+                      fontSize: '0.8em'
+                    }}
+                  >
+                    Usuń
+                  </button>
+                  <p style={{ margin: '0 0 4px 0', color: '#000' }}><strong>Działka {plot.plotNumber}</strong></p>
+                  <p style={{ margin: '0', color: '#000' }}>{plot.municipality}, obręb {plot.precinct}</p>
+                </div>
+              ))}
+              
+              <button 
+                onClick={exportToCSV}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#f0f0f0',
+                  color: '#666',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.9em',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <svg 
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Eksportuj CSV
+              </button>         
+                   
+              <div style={{ 
+                marginTop: '12px',
+                paddingTop: '12px',
+                borderTop: '1px solid #e9ecef',
+                textAlign: 'right'
+              }}>
+              </div>
+            </div>
+
             <h3 style={{ color: '#000', marginTop: 0, marginBottom: '15px' }}>Zgłaszanie nielegalnych billboardów</h3>
             
             <div className="instruction-section">
@@ -315,24 +452,9 @@ Z poważaniem,
                   border: '1px solid #e9ecef'
                 }}>
                   <div style={{ marginBottom: '12px' }}>
-                    <strong style={{ color: '#1a73e8' }}>3. Poczekaj na odpowiedź</strong>
+                    <strong style={{ color: '#1a73e8' }}>3. Przygotuj pisma do PINB</strong>
                     <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
-                      Odczekaj 2 tygodnie na odpowiedź z WAiB potwierdzającą brak pozwoleń na budowę.
-                    </p>
-                  </div>
-                </li>
-
-                <li style={{ 
-                  marginBottom: '24px',
-                  backgroundColor: '#f8f9fa',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #e9ecef'
-                }}>
-                  <div style={{ marginBottom: '12px' }}>
-                    <strong style={{ color: '#1a73e8' }}>4. Złóż wniosek do PINB</strong>
-                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
-                      <strong>Wygeneruj</strong> pisma do Powiatowego Inspektoratu Nadzoru Budowlanego. Dołącz do nich odpowiedzi z WAiB.
+                      <strong>Wygeneruj</strong> pisma do Powiatowego Inspektoratu Nadzoru Budowlanego. Zachowaj je - będą potrzebne w następnym kroku.
                     </p>
                   </div>
                   <button 
@@ -353,6 +475,21 @@ Z poważaniem,
                     Generuj pisma do PINB
                   </button>
                 </li>
+
+                <li style={{ 
+                  marginBottom: '24px',
+                  backgroundColor: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong style={{ color: '#1a73e8' }}>4. Dokończ procedurę</strong>
+                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                      Poczekaj około 2 tygodni na odpowiedź z WAiB. Po otrzymaniu potwierdzenia braku pozwoleń, dołącz je do wcześniej wygenerowanych pism PINB i wyślij.
+                    </p>
+                  </div>
+                </li>
               </ol>
 
               <div style={{ 
@@ -361,7 +498,7 @@ Z poważaniem,
                 borderTop: '1px solid #e9ecef',
                 textAlign: 'center'
               }}>
-                <button 
+                {/* <button 
                   onClick={exportToCSV}
                   style={{
                     padding: '8px 16px',
@@ -375,65 +512,9 @@ Z poważaniem,
                   }}
                 >
                   Eksportuj dane do CSV
-                </button>
+                </button> */}
               </div>
             </div>
-          </div>
-          
-          <div style={{ marginTop: '32px' }}>
-            <h2 style={{ color: '#000', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              Wybrane działki
-              <span style={{ 
-                backgroundColor: '#e8f0fe',
-                color: '#1a73e8',
-                padding: '4px 8px',
-                borderRadius: '16px',
-                fontSize: '0.9em'
-              }}>
-                {selectedPlots.length}
-              </span>
-            </h2>
-            
-            {selectedPlots.map((plot, index) => (
-              <div 
-                key={index}
-                style={{
-                  backgroundColor: 'white',
-                  padding: '16px',
-                  marginBottom: '12px',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  position: 'relative'
-                }}
-              >
-                <button
-                  onClick={() => {
-                    const newPlots = [...selectedPlots];
-                    newPlots.splice(index, 1);
-                    setSelectedPlots(newPlots);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '12px',
-                    backgroundColor: '#ff4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    fontSize: '0.9em'
-                  }}
-                >
-                  Usuń
-                </button>
-                <h3 style={{ margin: '0 0 12px 0', color: '#000' }}>Działka {plot.plotNumber}</h3>
-                <p style={{ color: '#000', margin: '4px 0' }}><strong>Województwo:</strong> {plot.voivodeship}</p>
-                <p style={{ color: '#000', margin: '4px 0' }}><strong>Powiat:</strong> {plot.county}</p>
-                <p style={{ color: '#000', margin: '4px 0' }}><strong>Gmina:</strong> {plot.municipality}</p>
-                <p style={{ color: '#000', margin: '4px 0' }}><strong>Obręb:</strong> {plot.precinct}</p>
-              </div>
-            ))}
           </div>
         </div>
       </div>

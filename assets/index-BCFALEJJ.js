@@ -49,7 +49,7 @@ chciałbym się dowiedzieć czy poniższe wolnostojące billboardy posiadają wy
 • ${ue}
 
 Pozdrawiam,
-[imię i nazwisko]`,_e=new Blob([se],{type:"text/plain;charset=utf-8"}),ge=window.URL.createObjectURL(_e),Z=document.createElement("a");Z.href=ge,Z.download=`WAiB_${A.replace("Dzielnica ","")}_${new Date().toISOString().slice(0,10)}.txt`,Z.click(),window.URL.revokeObjectURL(ge)})},Y=()=>{const fe=k.reduce((A,le)=>{const ue=le.municipality,H=`${le.plotNumber}-${le.precinct}`;return A[ue]||(A[ue]={}),A[ue][H]||(A[ue][H]={count:0,plotNumber:le.plotNumber,precinct:le.precinct}),A[ue][H].count++,A},{});Object.entries(fe).forEach(([A,le])=>{const ue=Object.values(le).map(he=>{const Ue=he.count;return`${Ue} ${Ue===1?"billboard":"billboardy"} na działce nr ${he.plotNumber} z obrębu ${he.precinct}`}).join(`
+[imię i nazwisko]`,_e=new Blob([se],{type:"text/plain;charset=utf-8"}),ge=window.URL.createObjectURL(_e),Z=document.createElement("a");Z.href=ge,Z.download=`WAiB_${A.replace("Dzielnica ","")}_${new Date().toISOString().slice(0,10)}.txt`,Z.click(),window.URL.revokeObjectURL(ge)})},Y=()=>{const fe=k.reduce((A,le)=>{const ue=le.municipality,H=`${le.plotNumber}-${le.precinct}`;return A[ue]||(A[ue]={}),A[ue][H]||(A[ue][H]={count:0,plotNumber:le.plotNumber,precinct:le.precinct}),A[ue][H].count++,A},{});Object.entries(fe).forEach(([A,le])=>{const ue=Object.values(le).map(he=>{const Ue=he.count;return`${Ue} ${Ue===1?"bilbord":"bilbordy"} na działce nr ${he.plotNumber} z obrębu ${he.precinct}`}).join(`
 • `),H=A.replace("Dzielnica ",""),se=`DO: sekretariat@pinb.pl
 
 Szanowni Państwo,

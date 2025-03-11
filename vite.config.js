@@ -1,9 +1,10 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  base: '/cadastral-map/',  // Replace with your repository name
-  plugins: [react()]
-})
+  plugins: [react()],
+  base: "",  // ✅ Set this to "" for GitHub Pages with a custom domain
+  build: {
+    outDir: "dist",
+  }
+});

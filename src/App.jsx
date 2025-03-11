@@ -79,6 +79,18 @@ function App() {
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     
+    // Show sidebar briefly on mobile to ensure user knows it exists
+    if (window.innerWidth <= 768) {
+      setSidebarVisible(true);
+      const timer = setTimeout(() => {
+        setSidebarVisible(false);
+      }, 1500);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', checkIsMobile);
+      };
+    }
+    
     return () => {
       window.removeEventListener('resize', checkIsMobile);
     };
@@ -252,8 +264,8 @@ Z poważaniem,
         onClick={() => setSidebarVisible(!sidebarVisible)}
         style={{
           position: 'absolute',
-          bottom: '20px',
-          right: '20px',
+          bottom: '70px',  // Moved up to ensure visibility
+          right: '10px',   // Moved in from the edge
           zIndex: 1000,
           width: '50px',
           height: '50px',
@@ -265,7 +277,8 @@ Z poważaniem,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px'
+          fontSize: '24px',
+          transform: 'translateZ(0)' // Force hardware acceleration
         }}
       >
         {sidebarVisible ? '×' : '≡'}
@@ -282,6 +295,11 @@ Z poważaniem,
       overflow: 'hidden',
       position: 'relative'
     }}>
+    {isMobile && !sidebarVisible && (
+      <div className="toggle-indicator">
+        Kliknij tu, aby otworzyć panel
+      </div>
+    )}
       <div style={{ 
         flex: isMobile ? (sidebarVisible ? '0 0 50vh' : '1') : '3',
         position: 'relative',

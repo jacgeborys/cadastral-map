@@ -23,3 +23,34 @@ body, html {
   max-height: 100vh;
   scrollbar-width: thin;
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .instruction-section {
+    font-size: 0.9em;
+  }
+  
+  .leaflet-touch .leaflet-control-zoom {
+    margin-bottom: 60px; /* Make room for the toggle button */
+  }
+  
+  /* Ensure buttons are easier to tap on mobile */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Adjust font sizes for mobile */
+  h3 {
+    font-size: 1.3em;
+  }
+  
+  /* Make sure the map takes at least 50% of the screen height on mobile */
+  .map-container-mobile {
+    min-height: 50vh;
+  }
+  
+  /* Sidebar transitions for mobile */
+  .sidebar-transition {
+    transition: all 0.3s ease;
+  }
+}

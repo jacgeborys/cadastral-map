@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, WMSTileLayer, useMapEvents, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -67,9 +67,28 @@ function getAttributeValue(xmlDoc, attributeName) {
 
 function App() {
   const [selectedPlots, setSelectedPlots] = useState([]);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check if the device is mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
   
   const handlePlotSelect = (plotInfo) => {
     setSelectedPlots(prev => [...prev, plotInfo]);
+    if (isMobile) {
+      setSidebarVisible(true);
+    }
   };
 
   const boroughEmails = {
@@ -224,9 +243,50 @@ Z poważaniem,
     });
   };
 
+  // Mobile toggle button for sidebar
+  const renderMobileToggleButton = () => {
+    if (!isMobile) return null;
+    
+    return (
+      <button 
+        onClick={() => setSidebarVisible(!sidebarVisible)}
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: '#1a73e8',
+          color: 'white',
+          border: 'none',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px'
+        }}
+      >
+        {sidebarVisible ? '×' : '≡'}
+      </button>
+    );
+  };
+
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <div style={{ flex: '3', position: 'relative' }}>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: isMobile ? 'column' : 'row',
+      height: '100vh', 
+      width: '100vw', 
+      overflow: 'hidden',
+      position: 'relative'
+    }}>
+      <div style={{ 
+        flex: isMobile ? (sidebarVisible ? '0 0 50vh' : '1') : '3',
+        position: 'relative',
+        transition: 'flex 0.3s ease'
+      }}>
         <MapContainer 
           center={[52.237049, 21.017532]}
           zoom={11}
@@ -251,9 +311,18 @@ Z poważaniem,
             />
           ))}
         </MapContainer>
+        {renderMobileToggleButton()}
       </div>
       
-      <div style={{ flex: '1', padding: '20px', overflowY: 'auto', backgroundColor: '#f5f5f5' }}>
+      <div style={{ 
+        flex: isMobile ? (sidebarVisible ? '1' : '0 0 0px') : '1',
+        padding: '20px', 
+        overflowY: 'auto', 
+        backgroundColor: '#f5f5f5',
+        transition: isMobile ? 'flex 0.3s ease' : 'none',
+        display: isMobile && !sidebarVisible ? 'none' : 'block',
+        maxHeight: isMobile ? '50vh' : '100vh'
+      }}>
         <div style={{ marginBottom: '20px' }}>
           <div style={{ 
               marginBottom: '15px', 
@@ -262,6 +331,30 @@ Z poważaniem,
               borderRadius: '4px', 
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
             }}>
+            {isMobile && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '15px'
+              }}>
+                <h3 style={{ margin: 0, color: '#000' }}>Zgłaszanie billboardów</h3>
+                <button 
+                  onClick={() => setSidebarVisible(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#666',
+                    padding: '0'
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -382,46 +475,53 @@ Z poważaniem,
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
                 Eksportuj CSV
-              </button>         
-                   
-              <div style={{ 
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px solid #e9ecef',
-                textAlign: 'right'
-              }}>
-              </div>
+              </button>
             </div>
 
-            <h3 style={{ color: '#000', marginTop: 0, marginBottom: '15px' }}>Zgłaszanie nielegalnych billboardów</h3>
+            {!isMobile && <h3 style={{ color: '#000', marginTop: 0, marginBottom: '15px' }}>Zgłaszanie nielegalnych billboardów</h3>}
             
             <div className="instruction-section">
-              <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <ol style={{ 
+                listStyle: 'none', 
+                padding: 0, 
+                margin: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: isMobile ? '12px' : '24px'
+              }}>
                 <li style={{ 
-                  marginBottom: '24px',
+                  marginBottom: isMobile ? '12px' : '24px',
                   backgroundColor: '#f8f9fa',
-                  padding: '16px',
+                  padding: isMobile ? '12px' : '16px',
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
                   <div style={{ marginBottom: '12px' }}>
                     <strong style={{ color: '#1a73e8' }}>1. Zaznacz billboardy na mapie</strong>
-                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                    <p style={{ 
+                      margin: '8px 0 0 0', 
+                      color: '#5f6368',
+                      fontSize: isMobile ? '0.9em' : '1em'
+                    }}>
                       <strong>Kliknij</strong> w miejscu każdego billboardu na mapie. Możesz zaznaczyć wiele punktów w różnych dzielnicach.
                     </p>
                   </div>
                 </li>
 
                 <li style={{ 
-                  marginBottom: '24px',
+                  marginBottom: isMobile ? '12px' : '24px',
                   backgroundColor: '#f8f9fa',
-                  padding: '16px',
+                  padding: isMobile ? '12px' : '16px',
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
                   <div style={{ marginBottom: '12px' }}>
                     <strong style={{ color: '#1a73e8' }}>2. Wyślij zapytanie do WAiB</strong>
-                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                    <p style={{ 
+                      margin: '8px 0 0 0', 
+                      color: '#5f6368',
+                      fontSize: isMobile ? '0.9em' : '1em'
+                    }}>
                       <strong>Wygeneruj</strong> pisma do Wydziału Architektury i Budownictwa z zapytaniem o pozwolenia na budowę.
                     </p>
                   </div>
@@ -445,15 +545,19 @@ Z poważaniem,
                 </li>
 
                 <li style={{ 
-                  marginBottom: '24px',
+                  marginBottom: isMobile ? '12px' : '24px',
                   backgroundColor: '#f8f9fa',
-                  padding: '16px',
+                  padding: isMobile ? '12px' : '16px',
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
                   <div style={{ marginBottom: '12px' }}>
                     <strong style={{ color: '#1a73e8' }}>3. Przygotuj pisma do PINB</strong>
-                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                    <p style={{ 
+                      margin: '8px 0 0 0', 
+                      color: '#5f6368',
+                      fontSize: isMobile ? '0.9em' : '1em'
+                    }}>
                       <strong>Wygeneruj</strong> pisma do Powiatowego Inspektoratu Nadzoru Budowlanego. Zachowaj je - będą potrzebne w następnym kroku.
                     </p>
                   </div>
@@ -477,43 +581,24 @@ Z poważaniem,
                 </li>
 
                 <li style={{ 
-                  marginBottom: '24px',
+                  marginBottom: isMobile ? '12px' : '24px',
                   backgroundColor: '#f8f9fa',
-                  padding: '16px',
+                  padding: isMobile ? '12px' : '16px',
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
                   <div style={{ marginBottom: '12px' }}>
                     <strong style={{ color: '#1a73e8' }}>4. Dokończ procedurę</strong>
-                    <p style={{ margin: '8px 0 0 0', color: '#5f6368' }}>
+                    <p style={{ 
+                      margin: '8px 0 0 0', 
+                      color: '#5f6368',
+                      fontSize: isMobile ? '0.9em' : '1em'
+                    }}>
                       Poczekaj około 2 tygodni na odpowiedź z WAiB. Po otrzymaniu potwierdzenia braku pozwoleń, dołącz je do wcześniej wygenerowanych pism PINB i wyślij.
                     </p>
                   </div>
                 </li>
               </ol>
-
-              <div style={{ 
-                marginTop: '24px',
-                paddingTop: '16px',
-                borderTop: '1px solid #e9ecef',
-                textAlign: 'center'
-              }}>
-                {/* <button 
-                  onClick={exportToCSV}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#4CAF50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.9em',
-                    opacity: '0.8'
-                  }}
-                >
-                  Eksportuj dane do CSV
-                </button> */}
-              </div>
             </div>
           </div>
         </div>

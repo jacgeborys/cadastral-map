@@ -31,7 +31,7 @@ body, html {
   }
   
   .leaflet-touch .leaflet-control-zoom {
-    margin-bottom: 80px; /* More room for the toggle button */
+    margin-bottom: 120px; /* More room for the bigger toggle button */
     margin-right: 10px; /* Keep away from the edge */
   }
   

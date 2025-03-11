@@ -267,9 +267,9 @@ Z poważaniem,
           bottom: '70px',  // Moved up to ensure visibility
           right: '10px',   // Moved in from the edge
           zIndex: 1000,
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
+          minWidth: '140px',
+          height: '60px',
+          borderRadius: '30px',
           backgroundColor: '#1a73e8',
           color: 'white',
           border: 'none',
@@ -277,11 +277,14 @@ Z poważaniem,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px',
-          transform: 'translateZ(0)' // Force hardware acceleration
+          fontSize: '16px',
+          fontWeight: 'bold',
+          padding: '0 16px',
+          transform: 'translateZ(0)', // Force hardware acceleration
+          touchAction: 'manipulation' // Improve touch response
         }}
       >
-        {sidebarVisible ? '×' : '≡'}
+        {sidebarVisible ? 'Zamknij panel' : 'Pokaż instrukcję'}
       </button>
     );
   };

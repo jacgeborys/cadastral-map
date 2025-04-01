@@ -189,11 +189,11 @@ function App() {
       const email = boroughEmails[borough] || 'Nie znaleziono adresu e-mail';
       const letter = `DO: ${email}
 
-Dzień dobry,
-chciałbym się dowiedzieć czy poniższe wolnostojące billboardy posiadają wymagane prawem pozwolenie na budowę:
+Szanowni Państwo,
+W ramach dostępu do informacji publicznej, zwracam się z prośbą o informację, czy poniższe wolnostojące billboardy posiadają wymagane prawem pozwolenie na budowę:
 • ${plotDescriptions}
 
-Pozdrawiam,
+Z poważaniem,
 [imię i nazwisko]`;
 
       const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
@@ -237,7 +237,7 @@ Pozdrawiam,
       const letter = `DO: sekretariat@pinb.pl
 
 Szanowni Państwo,
-w związku z ujawnieniem wolnostojących billboardów bez wymaganego prawem pozwolenia na budowę zwracam się z prośbą o wszczęcie postępowania z urzędu i doprowadzenie do rozbiórki samowoli budowlanych ujawnionych przez Wydział Architektury i Budownictwa Urzędu Dzielnicy ${cleanBorough}. W załączeniu pismo z Urzędu.
+W związku z ujawnieniem wolnostojących billboardów bez wymaganego prawem pozwolenia na budowę zwracam się z prośbą o wszczęcie postępowania z urzędu i doprowadzenie do rozbiórki samowoli budowlanych ujawnionych przez Wydział Architektury i Budownictwa Urzędu Dzielnicy ${cleanBorough}. W załączeniu pismo z Urzędu.
 
 Dotyczy:
 • ${plotDescriptions}
